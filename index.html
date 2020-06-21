@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingPong</title>
+</head>
+
+<body>
+    <canvas id="MeinCanvas"style="border: 2px dotted red;"></canvas>
+    <script>
+        document.body.style.overflow = 'hidden';
+
+        //Als globale Variablen deklariert um mit allen Functions darauf zugreifen zu können
+        var x = 20;
+        var y = 200;
+        var dx = 2;
+        var dy = -2;
+        var R = 10;
+        var context = MeinCanvas.getContext('2d');
+
+        var padlx = 50;
+        var counter = 0;
+        var timer;
+
+        var canv = document.getElementById("MeinCanvas");
+        canv.width = document.documentElement.clientWidth - 20;
+        canv.height = document.documentElement.clientHeight - 20;
+        var WIDTH = document.documentElement.clientWidth;
+        var HEIGHT = document.documentElement.clientHeight;
+        var farbverlauf = context.createLinearGradient(0, 0, canv.width, 0);
+        farbverlauf.addColorStop("0", "magenta");
+        farbverlauf.addColorStop("0.2", "blue");
+        farbverlauf.addColorStop("0.4", "red");
+        farbverlauf.addColorStop("0.6", "orange");
+        farbverlauf.addColorStop("0.8", "yellow");
+        farbverlauf.addColorStop("1.0", "green");
+        
+
+        function init() {
+
+            document.addEventListener('keydown', function(event) {
+                console.log(event);
+                console.log(event.key);
+                if (event.key == 'ArrowLeft' & padlx > 0) {
+                    padlx = padlx - 75;
+                }
+                if (event.key == 'ArrowRight' & padlx + 300 < WIDTH) {
+                    padlx = padlx + 75;
+                }
+                if (event.key == 'Enter') {
+                    timer = setInterval(draw, 5);
+
+                }
+            });
+            
+            window.addEventListener('devicemotion', function(event){
+                var xacceleration = Math.round(event.acceleration.x*10)/10;
+                var xneigung = Math.round(event.accelerationIncludingGravity.x*10)/10;
+                padlx = padlx - xneigung;
+
+            });
+            timer = setInterval(draw, 5);
+            draw();
+
+        }
+
+        function ball(x, y, r) {
+            context.fillStyle = farbverlauf;
+            context.beginPath();
+            context.arc(x, y, r, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+        }
+
+        function padl(x) {
+            context.fillStyle = "darkred";
+            context.fillRect(x, HEIGHT - 50, WIDTH / 5, 20);
+
+        }
+
+        function clear() {
+            context.fillStyle = "#FFF8DC";
+            context.fillRect(0, 0, WIDTH, HEIGHT);
+        }
+
+
+        function draw() {
+
+            clear()
+            padl(padlx);
+            ball(x, y, 10)
+            if (x > WIDTH - R || x < 0 + R) {
+                dx = -dx;
+            }
+            if (y > HEIGHT - R || y < 0 + R) {
+                dy = -dy;
+            }
+
+            if (y > HEIGHT - (R + 1)) {
+
+                var ausgabe = "Ein Satz mit X. Das war wohl nix! SCORE: " + counter;
+                context.fillStyle = farbverlauf;
+                context.font = "4em Arial";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
+                context.fillText(ausgabe,canv.width / 2, canv.height / 2);
+                clearInterval(timer);
+                timer = 0; //zur Sicherheit auch noch null setzten
+                counter = 0;
+            }
+
+            if (y > (HEIGHT - 50 - 20 + R) & x > padlx & x < padlx + WIDTH / 5) {
+                dy = -dy;
+                counter++;
+                console.log(counter);
+            }
+
+            x = x + dx;
+            y = y - dy;
+
+        }
+
+        init();
+
+    </script>
+</body>
+
+</html>
